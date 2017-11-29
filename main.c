@@ -38,7 +38,7 @@ int main(){
 	//vertex_item vertex[] // vai depender da entrada lida do usuario 
 	// Ler arquivo e colocar em ED 
 
-	printf("Começando o negocio \n");
+	printf("Começando o negocio 2\n");
 
 	return 0;
 }
