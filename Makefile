@@ -2,8 +2,8 @@
 CC           = gcc
 CFLAGS       = -Wall
 
-main.o : main.c
+main.o : main.cpp
 	# compiling main.c
-	$(CC) $(CFLAGS) -o  dijkstra.exec main.c 
+	$(CC) $(CFLAGS) -o  dijkstra.exec main.cpp 
 clean:
 	rm -f *.exec
