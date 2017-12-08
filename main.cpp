@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <limits.h>
                           // Number of vertices in the graph
-#define V 9               //aqui ta como define, temos que trocar pro que vai ser lido do arquivo de entrada
+              //aqui ta como define, temos que trocar pro que vai ser lido do arquivo de entrada
+#define MAX 99
 
 typedef struct item {
 	int vertex;
@@ -21,7 +22,7 @@ typedef struct item2 {
 //======================================================================================================================
 // A utility function to find the vertex with minimum distance value, from
 // the set of vertices not yet included in shortest path tree
-int minDistance(int dist[], bool sptSet[])
+int minDistance(int dist[], bool sptSet[],int V)
 {
    // Initialize min value
    int min = INT_MAX, min_index;
@@ -34,7 +35,7 @@ int minDistance(int dist[], bool sptSet[])
 }
   
 // A utility function to print the constructed distance array
-void printSolution(int dist[], int n)
+void printSolution(int dist[], int V)
 {
    printf("Vertex   Distance from Source\n");
    for (int i = 0; i < V; i++)
@@ -43,7 +44,7 @@ void printSolution(int dist[], int n)
   
 // Funtion that implements Dijkstra's single source shortest path algorithm
 // for a graph represented using adjacency matrix representation
-void dijkstra(int graph[V][V], int src)
+void dijkstra(int graph[][MAX], int src, int V)   //V vai ser o numero de vertices
 {
      int dist[V];     // The output array.  dist[i] will hold the shortest
                       // distance from src to i
@@ -63,7 +64,7 @@ void dijkstra(int graph[V][V], int src)
      {
        // Pick the minimum distance vertex from the set of vertices not
        // yet processed. u is always equal to src in first iteration.
-       int u = minDistance(dist, sptSet);
+       int u = minDistance(dist, sptSet,V);
   
        // Mark the picked vertex as processed
        sptSet[u] = true;
@@ -97,10 +98,16 @@ int main(){
 	int nodo;
 	int aresta;
   int nodo1, nodo2, peso_aresta;
+  int matriz_adj[MAX][MAX] = {0};
+  int nodo_inicial;
 	//int visited[100];
 	//int unvisited[100];
 	//table_item table[100];
 	FILE * fp; // File Pointer para o arquivo dos nodos
+
+    for(int i = 0; i < MAX;i++)
+      for(int j = 0; j < MAX; j++)          //zera a matriz
+        matriz_adj[i][j] = 0;
 
     fp = fopen("Insts/inst2.dat", "r");
     if (fp == NULL){
@@ -110,10 +117,12 @@ int main(){
 	fscanf(fp,"%d %d",&nodo,&aresta) ;       //aqui le o numero de nodos e arestas
 	printf("Nodos:%d Arestas: %d \n",nodo,aresta);
 
-	while(fscanf(fp,"%d %d %d",&nodo1,&nodo2,&peso_aresta) == 1)  //aqui le nodo1, nodo2 e o peso da aresta. ate o fim do arquivo
+	while(fscanf(fp,"%d %d %d",&nodo1,&nodo2,&peso_aresta) > 0)  //aqui le nodo1, nodo2 e o peso da aresta. ate o fim do arquivo
 	{  
-		  // printf("\n%s\t%c", item,status);       //dentro desse while, tem que pegar e colocar na matriz de adjascencia o peso
-                                                // das arestas. o que seria esse status que estaria sendo printado?
+		  matriz_adj[nodo1][nodo2] = peso_aresta;
+      matriz_adj[nodo2][nodo1] = peso_aresta;     //preenche a matriz de adjacencia
+      printf("\n %d %d  %d",nodo1,nodo2,peso_aresta);
+                                               
 	}  
 
 /*
@@ -127,7 +136,10 @@ int main(){
 	//vertex_item vertex[] // vai depender da entrada lida do usuario 
 	// Ler arquivo e colocar em ED 
 
+  printf("\nQual o nodo inicial?");
+  scanf("%d",&nodo_inicial);
 	printf("Começando o negocio 2\n");
+  dijkstra(matriz_adj, nodo_inicial, nodo);
 
 	return 0;
 }
