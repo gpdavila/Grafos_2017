@@ -112,9 +112,7 @@ int main(){
   	int matriz_adj[MAX][MAX] = {0};
   	int nodo_inicial;
 	int flag ;
-	//int visited[100];
-	//int unvisited[100];
-	//table_item table[100];
+
 	FILE * fp; // File Pointer para o arquivo dos nodos
 
     for(int i = 0; i < MAX;i++)
@@ -129,7 +127,8 @@ int main(){
 	fscanf(fp,"%d %d",&nodo,&aresta) ;       //aqui le o numero de nodos e arestas
 	printf("Nodos: %d\tArestas: %d\n",nodo,aresta);
 
-	while(fscanf(fp,"%d %d %d",&nodo1,&nodo2,&peso_aresta) > 0)  //aqui le nodo1, nodo2 e o peso da aresta. ate o fim do arquivo
+	//aqui le nodo1, nodo2 e o peso da aresta. ate o fim do arquivo
+	while(fscanf(fp,"%d %d %d",&nodo1,&nodo2,&peso_aresta) > 0)  
 	{  
 	  matriz_adj[nodo1][nodo2] = peso_aresta;
       matriz_adj[nodo2][nodo1] = peso_aresta;     //preenche a matriz de adjacencia
