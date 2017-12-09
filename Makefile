@@ -1,5 +1,5 @@
 
-CC           = gcc
+CC           = g++
 CFLAGS       = -Wall
 
 main.o : main.cpp
