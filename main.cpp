@@ -1,151 +1,178 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#define MAX 100 // tamanho maximo de nodos 'n' do grafo
 
-#define MAX 100
+//==============================================================================
+// ALGORITMO DE DIJKSTRA
+//==============================================================================
 
-//=====================================================================================================================
-// AQUI COMEÇA O ALGORITMO DE DJIKSTRA
-//======================================================================================================================
-// A utility function to find the vertex with minimum distance value, from
-// the set of vertices not yet included in shortest path tree
-int minDistance(int dist[], bool sptSet[],int V)
+// prototipos de funcoes utilizadas
+void printaTabela(int dist[], int num_vert);
+void printaConjFechado(bool set[], int u, int num_vert);
+int proxVertice(int dist[], bool S[], int num_vert);
+
+// funcao com algoritmo de dijkstra que imprime na tela os resultados  
+void dijkstra(int grafo[][MAX], int x, int y, int num_vert, int modo_det)
 {
-   // Initialize min value
-   int min = INT_MAX, min_index;
+    int dist[num_vert]; // array de distancias (dist[x] = menor distancia do nodo inicial ate x)
+    bool S[num_vert];   // conjunto fechado S que indica os vertices com distancia ja calculada
+    int i = 0;
   
-   for (int v = 0; v < V; v++)
-     if (sptSet[v] == false && dist[v] <= min){
-			min = dist[v];
- 			min_index = v;
-  		}
-   return min_index;
-}
+    // inicializa todas as distancias como INT_MAX ("infinito") e conjunto fechado "S"
+    for (i = 0; i < num_vert; i++){
+        dist[i] = INT_MAX;
+        S[i] = false;
+    }
 
-
-void printClosedSet(bool set[], int u, int V)
-{
-	int i = 0;
-	printf("************** Visitando Nodo %d ***************\n",u);
-	printf("****** Conjunto Fechado ******\n");
-	for(i=0 ;i<V ;i++){	// Imprime closed set
-		if(set[i] == true){
-			printf("%d,",i);		
-		}
-	}
-	printf("\n");
-
-}
-
- 
-// A utility function to print the constructed distance array
-void printPartialSolution(int dist[], int V)
-{
-   printf("Conjunto fechado:\n");
-   for (int i = 0; i < V; i++)
-      printf("%d: %d\n", i, dist[i]);
-}
+    // distancia do vertice inicial para ele mesmo
+    dist[x] = 0;
   
-// Funtion that implements Dijkstra's single source shortest path algorithm
-// for a graph represented using adjacency matrix representation
-void dijkstra(int graph[][MAX], int src, int dst, int V, int flag)   //V vai ser o numero de vertices
-{
-     int dist[V];     // The output array.  dist[i] will hold the shortest
-                      // distance from src to i
-  	 int i =0;
-     bool sptSet[V]; // sptSet[i] will true if vertex i is included in shortest
-                     // path tree or shortest distance from src to i is finalized
-  
-     // Initialize all distances as INFINITE and stpSet[] as false
-     for (i = 0; i < V; i++){
-        dist[i] = INT_MAX;		// Distancia de todo mundo olocada em infinito 
-		sptSet[i] = false;		// Não conhecemos a distancia de ninguem
-	}
-     // Distance of source vertex from itself is always 0
-     dist[src] = 0;
-  
-     // Find shortest path for all vertices
-     for (int count = 0; count < V-1; count++)
-     {
-       // Pick the minimum distance vertex from the set of vertices not
-       // yet processed. u is always equal to src in first iteration.
-       int u = minDistance(dist, sptSet,V); // U = proximo nodo a ser procesado
+    // acha a menor distancia para todos os vertices
+    for (int count = 0; count < num_vert - 1; count++)
+    {
+        // determina o vertice com menor distancia que ainda nao pertence
+        // ao conjunto fechado
+        int u = proxVertice(dist,S,num_vert); // u = proximo nodo a ser procesado
   		
-       // Mark the picked vertex as processed
-       sptSet[u] = true;
-		if(flag){
-			printClosedSet(sptSet,u,V);
-		}
+        // adiciona u ao conjunto fechado
+        S[u] = true;
 
-  
-       // Update dist value of the adjacent vertices of the picked vertex.
-       for (int v = 0; v < V; v++)
-  
-         // Update dist[v] only if is not in sptSet, there is an edge from 
-         // u to v, and total weight of path from src to  v through u is 
-         // smaller than current value of dist[v]
-         if (!sptSet[v] && graph[u][v] && dist[u] != INT_MAX && dist[u]+graph[u][v] < dist[v]){
-            dist[v] = dist[u] + graph[u][v];
-		}
-		if(flag){	// Este é o modod detalhado -> imprimir tabela passo a passo
-		     printPartialSolution(dist, V);
-		}			
-     }
-  
-     // print the constructed distance array
-		
-		printf("Distancia de %d -> %d: %d\n",src,dst,dist[dst]);
+        // se estiver no modo detalhado, imprime o conjunto fechado
+        if(modo_det) {
+            printaConjFechado(S,u,num_vert);
+        }
 
+        // atualiza a tabela de distancias se descobrir um caminho menor a partir do vertice 'u'
+        for (int v = 0; v < num_vert; v++) {
+            // para cada 'v', atualiza dist[v] apenas se:
+            // vertice 'v' nao esta no conjunto fechado &&
+            // vertice 'v' e adjacente ao 'u' escolhido &&
+            // distancia do caminho novo e menor do que a distancia anterior
+            if ((!S[v]) && (grafo[u][v] && dist[u] != INT_MAX) && (dist[u]+grafo[u][v] < dist[v])) {
+                dist[v] = dist[u] + grafo[u][v];
+            }
+        }
+
+        // se estiver no modo detalhado, imprime a tabela de distancias atualizada
+        if(modo_det) {
+            printaTabela(dist,num_vert);
+        }
+    }
+
+    // printa o resultado
+    printf("\n****************** RESULTADO *******************\n");
+    printf("Menor distancia entre os nodos %d e %d: %d\n\n",x,y,dist[y]);
 }
-  
 
-//=====================================================================================================================
-// AQUI TERMINA O ALGORITMO
-//======================================================================================================================
+// funcao que imprime o array de distancias
+void printaTabela(int dist[], int num_vert)
+{
+    printf("\nTabela de distancias:\n");
 
-int main(){
+    for (int i = 0; i < num_vert; i++) {
+        // se o valor for infinito
+        if (dist[i] == INT_MAX) {
+            printf("%d: INFINITO\n", i);
+        }
+        // se o valor for finito
+        else {
+            printf("%d: %d\n", i, dist[i]);
+        }
+    }
+}
 
-	int nodo;
-	int nodo_destino;
-	int aresta;
-	int nodo1, nodo2, peso_aresta;
-  	int matriz_adj[MAX][MAX] = {0};
-  	int nodo_inicial;
-	int flag ;
+// funcao que imprime o conjunto fechado "S"
+// usada no modo detalhado
+void printaConjFechado(bool S[], int u, int num_vert)
+{
+    int i = 0;
+    int primeiro = 1;
+    printf("\n************** Visitando nodo %d ***************\n",u);
+    printf("Conjunto fechado S = {");
 
-	FILE * fp; // File Pointer para o arquivo dos nodos
+    for(i = 0; i < num_vert; i++) {
+        if(S[i] == true) {
+            if (primeiro) {
+                printf("%d", i);
+                primeiro = 0;
+            }
+            else {
+                printf(", %d",i);
+            }
+        }
+    }
 
+    printf("}");
+}
+
+// funcao auxiliar para achar o vertice com menor distancia que ainda nao
+// pertence ao conjunto fechado "S" e retornar seu indice no array de distancias
+int proxVertice(int dist[], bool S[], int num_vert)
+{
+    int min = INT_MAX, indice;
+
+    // percorre array de distancias e determina o vertice
+    for (int v = 0; v < num_vert; v++) {
+        if (S[v] == false && dist[v] <= min){
+            min = dist[v];
+            indice = v;
+        }
+    }
+
+    return indice; // retorna o indice do vertice encontrado
+}
+
+//==============================================================================
+// FIM DO ALGORITMO
+//==============================================================================
+
+
+int main()
+{
+    int num_nodos, num_arestas; // quantidade de nodos e arestas do grafo (1a linha do arquivo)
+    int nodo_inicial, nodo_destino; // "x" e "y" de acordo com a especificacao do trabalho
+    int nodo1, nodo2, peso_aresta; // variavies auxiliares para leitura do arquivo
+    int matriz_adj[MAX][MAX] = {0}; // matriz de adjacencia do grafo
+    int modo_det; // flag que indica se o modo e detalhado ("execucao passo a passo") 
+	FILE *fp; // file pointer para o arquivo de entrada
+
+    // zera a matriz de adjacencia
     for(int i = 0; i < MAX;i++)
-      for(int j = 0; j < MAX; j++)          //zera a matriz
-        matriz_adj[i][j] = 0;
+        for(int j = 0; j < MAX; j++)
+            matriz_adj[i][j] = 0;
 
-    fp = fopen("inst2/inst22n.dat", "r");
+    // abre o arquivo de entrada
+    fp = fopen("inst2/inst22n.dat","r");
+
     if (fp == NULL){
-		printf("Erro ao abrir o arquivo de Nodos\n");
+        printf("Erro ao abrir o arquivo de entrada!\n");
         exit(EXIT_FAILURE);
-	}
-	fscanf(fp,"%d %d",&nodo,&aresta) ;       //aqui le o numero de nodos e arestas
-	printf("Nodos: %d\tArestas: %d\n",nodo,aresta);
+    }
 
-	//aqui le nodo1, nodo2 e o peso da aresta. ate o fim do arquivo
-	while(fscanf(fp,"%d %d %d",&nodo1,&nodo2,&peso_aresta) > 0)  
-	{  
-	  matriz_adj[nodo1][nodo2] = peso_aresta;
-      matriz_adj[nodo2][nodo1] = peso_aresta;     //preenche a matriz de adjacencia
-      //printf("\n %d %d %d",nodo1,nodo2,peso_aresta);
-                                               
-	}  
+    fscanf(fp,"%d %d",&num_nodos,&num_arestas); // le o numero de nodos e arestas
+    printf("Quantidade de nodos: %d\nQuantidade de arestas: %d\n",num_nodos,num_arestas);
 
-	printf("\nQual o nodo inicial?\t");
+    // le os nodos e aresta de cada linha
+    // e preenche a matriz de adjacencia
+    while(fscanf(fp,"%d %d %d",&nodo1,&nodo2,&peso_aresta) > 0)  
+    {  
+      matriz_adj[nodo1][nodo2] = peso_aresta;
+      matriz_adj[nodo2][nodo1] = peso_aresta;
+    }
+
+    // pede "x" e "y" para o usuario
+    printf("\nQual o nodo inicial?\n>>> ");
     scanf("%d",&nodo_inicial);
-	printf("\nQual o nodo final?\t");
+    printf("\nQual o nodo final?\n>>> ");
     scanf("%d",&nodo_destino);
 
-	printf("\nModo simples (0) ou Modo Detalhado (1) ?\t");
-    scanf("%d",&flag);
+    // pede o modo de execucao para o usuario
+    printf("\nModo simples(0) ou modo detalhado(1) ?\n>>> ");
+    scanf("%d",&modo_det);
 
-    dijkstra(matriz_adj, nodo_inicial,nodo_destino, nodo,flag);
+    // executa o algoritmo de dijkstra no modo selecionado
+    dijkstra(matriz_adj,nodo_inicial,nodo_destino,num_nodos,modo_det);
 
-	return 0;
+    return 0;
 }
-
