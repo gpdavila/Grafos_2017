@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 
     // em caso de erro na abertura do arquivo
     if (fp == NULL){
-        printf("Erro na abertura do arquivo de entrada informado \"s\"", argv[1]);
+        printf("Erro na abertura do arquivo de entrada informado \"%s\"", argv[1]);
         exit(EXIT_FAILURE);
     }
 
