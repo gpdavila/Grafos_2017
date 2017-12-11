@@ -128,7 +128,7 @@ int proxVertice(int dist[], bool S[], int num_vert)
 //==============================================================================
 
 
-int main()
+int main(int argc, char *argv[])
 {
     int num_nodos, num_arestas; // quantidade de nodos e arestas do grafo (1a linha do arquivo)
     int nodo_inicial, nodo_destino; // "x" e "y" de acordo com a especificacao do trabalho
@@ -137,18 +137,25 @@ int main()
     int modo_det; // flag que indica se o modo e detalhado ("execucao passo a passo") 
 	FILE *fp; // file pointer para o arquivo de entrada
 
+    // abre o arquivo informado como argumento para o programa
+    // ou o caminho padrao caso nao seja informado nenhum argumento
+    if (argc == 1){
+        fp = fopen("inst2/inst22n.dat","r");
+    }
+    else {
+        fp = fopen(argv[1], "r");
+    }
+
+    // em caso de erro na abertura do arquivo
+    if (fp == NULL){
+        printf("Erro na abertura do arquivo de entrada informado \"s\"", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+
     // zera a matriz de adjacencia
     for(int i = 0; i < MAX;i++)
         for(int j = 0; j < MAX; j++)
             matriz_adj[i][j] = 0;
-
-    // abre o arquivo de entrada
-    fp = fopen("inst2/inst22n.dat","r");
-
-    if (fp == NULL){
-        printf("Erro ao abrir o arquivo de entrada!\n");
-        exit(EXIT_FAILURE);
-    }
 
     fscanf(fp,"%d %d",&num_nodos,&num_arestas); // le o numero de nodos e arestas
     printf("Quantidade de nodos: %d\nQuantidade de arestas: %d\n",num_nodos,num_arestas);
